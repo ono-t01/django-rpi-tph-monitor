@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -143,6 +144,16 @@ COMPRESS_PRECOMPILERS = (
 )
 
 
+# for Django Rest Framework
+# https://www.django-rest-framework.org
+# https://www.django-rest-framework.org/tutorial/quickstart/
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+
 # for Django Background Tasks
 # https://django-background-tasks.readthedocs.io/en/latest/
 
@@ -206,3 +217,6 @@ ON_RASPBERRY_PI = False
 # miscs
 
 OWNER = 'ML and AI study group.'
+DATET_FORMAT = 'Y F d'
+TIME_FORMAT = 'H:i:s'
+DATETIME_FORMAT = 'r'

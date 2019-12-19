@@ -2,13 +2,13 @@
 import datetime
 import logging
 import time
-from django.utils import timezone
-from django.test import TestCase
+from django.conf import settings as ts
 # from django.utils import timezone
-from .data_container import BME280dc
-from .models import BME280
-from .store_tph import StoreTph
-import tph.settings as ts
+from django.test import TestCase
+from django.utils import timezone
+from monitor.data_container import BME280dc
+from monitor.models import BME280
+from monitor.store_tph import StoreTph
 
 logger = logging.getLogger(__name__)
 
