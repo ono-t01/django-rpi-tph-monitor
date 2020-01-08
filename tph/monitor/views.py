@@ -47,13 +47,63 @@ def show(request):
             raise Http404("Can't get datas from BME280")
         logger.debug('end')
         bme280dcs.append(BME280dc(t=bme280i2c.T, p=bme280i2c.P, h=bme280i2c.H))
-    return render(request, 'monitor/show.html', {
+    context = {
         'site_title': 'TPH monitor',
         'title': 'Show current environment:pressure, humidity and temperature',
         'bme280dcs': bme280dcs,
         'year': 2019,
         'owner': ts.OWNER,
-    })
+    }
+    # https://docs.djangoproject.com/en/3.0/topics/http/shortcuts/#render
+    return render(request, 'monitor/show.html', context)
+
+
+def __response(request, bme280s, title):
+    """Show datas from BME280."""
+    logger.debug('start')
+    logger.debug(f'length bme280s: {len(bme280s)}')
+    context = {
+        'site_title': 'TPH monitor',
+        'title': title,
+        'bme280s': bme280s,
+        'year': 2019,
+        'owner': ts.OWNER,
+    }
+    # https://docs.djangoproject.com/en/3.0/topics/http/shortcuts/#render
+    return render(request, 'monitor/bme280.html', context)
+
+
+@csrf_exempt
+def showlastmonth(request):
+    """Show last month environment pressure, humidity and temperature."""
+    logger.debug('start')
+    lm = (timezone.now().month - 1)
+    bme280s = BME280.objects.filter(measure_date__month=lm)
+    title = 'Show last month pressure, humidity and temperature'
+    return __response(request, bme280s, title)
+
+
+@csrf_exempt
+def showmonth(request, year: int, month: int):
+    """Show year/month environment pressure, humidity and temperature."""
+    logger.debug(f'start, year: {year}, month: {month}')
+    bme280s = BME280.objects.filter(measure_date__year=year,
+                                    measure_date__month=month
+                                   )
+    title = f'Show {year}/{month} pressure, humidity and temperature'
+    return __response(request, bme280s, title)
+
+
+@csrf_exempt
+def showday(request, year: int, month: int, day: int):
+    """Show year/month/day environment pressure, humidity and temperature."""
+    logger.debug(f'start, year: {year}, month: {month}, day: {day}')
+    bme280s = BME280.objects.filter(measure_date__year=year,
+                                    measure_date__month=month,
+                                    measure_date__day=day,
+                                    )
+    title = f'Show {year}/{month}/{day} pressure, humidity and temperature'
+    return __response(request, bme280s, title)
 
 
 # @api_view(['POST'])
@@ -80,5 +130,5 @@ def tasks(request, rpt, untl):
 class BME280ViewSet(viewsets.ModelViewSet):
     """API endpoint that allows BME280 to be viewed and edit."""
 
-    queryset = BME280.objects.all().order_by('-measure_datetime')
+    queryset = BME280.objects.all().order_by('-pub_date')
     serializer_class = BME280Serializer
