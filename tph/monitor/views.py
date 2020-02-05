@@ -50,7 +50,7 @@ def show(request):
         'site_title': 'TPH monitor',
         'title': 'Show current environment:pressure, humidity and temperature',
         'bme280dcs': bme280dcs,
-        'year': 2019,
+        'year': ts.COPYRIGHT_YEAR,
         'owner': ts.OWNER,
     }
     # https://docs.djangoproject.com/en/3.0/topics/http/shortcuts/#render
@@ -65,7 +65,7 @@ def __response(request, bme280s, title):
         'site_title': 'TPH monitor',
         'title': title,
         'page_obj': bme280s,
-        'year': 2019,
+        'year': ts.COPYRIGHT_YEAR,
         'owner': ts.OWNER,
     }
     # https://docs.djangoproject.com/en/3.0/topics/http/shortcuts/#render
@@ -112,12 +112,12 @@ def showday(request, year: int, month: int, day: int):
     return __response(request, bme280s, title)
 
 
-# @api_view(['POST'])
+# @api_view(['POST', 'GET'])
 @csrf_exempt
 def tasks(request, rpt, untl):
     """Register background tasks."""
     logger.debug('start')
-    if request.method == 'POST':
+    if request.method == 'GET':
         end_datetime = timezone.now() + timedelta(seconds=untl)
         bgStoreTph(repeat=rpt,
                    repeat_until=end_datetime)
@@ -131,47 +131,6 @@ def tasks(request, rpt, untl):
     else:
         logger.debug('end, status: 405')
         return JsonResponse({'status': False}, status=405)
-
-
-class Bme280List(ListView):
-    """For list view."""
-
-    model = BME280
-    paginate_by = ts.PAGE_SIZE
-    template_name = 'monitor/bme280.html'
-    title = f'Show pressure, humidity and temperature'
-
-    def get_context_data(self, **kwargs):
-        """Get context data."""
-        context = super().get_context_data(**kwargs)
-        context['site_title'] = 'TPH monitor'
-        context['title'] = self.title
-        context['year'] = '2019-2020'
-        context['owner'] = ts.OWNER
-        return context
-
-    def get_queryset(self):
-        """Year, month, day."""
-        if 'year' in self.kwargs:
-            year = self.kwargs['year']
-            if 'month' in self.kwargs:
-                month = self.kwargs['month']
-                if 'day' in self.kwargs:
-                    day = self.kwargs['day']
-                    self.title = f'Show {year}/{month}/{day} pressure, humidity and temperature'
-                    return BME280.objects.filter(measure_date__year=year,
-                                                 measure_date__month=month,
-                                                 measure_date__day=day,
-                                                )
-                else:
-                    self.title = f'Show {year}/{month} pressure, humidity and temperature'
-                    return BME280.objects.filter(measure_date__year=year,
-                                                 measure_date__month=month,
-                                                )
-            else:
-                self.title = f'Show {year} pressure, humidity and temperature'
-                return BME280.objects.filter(measure_date__year=year)
-        return BME280.objects.all()
 
 
 class BME280ViewSet(viewsets.ModelViewSet):
