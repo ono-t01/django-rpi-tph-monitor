@@ -25,7 +25,7 @@ SECRET_KEY = 'nkb$&4u$3cbhc^zsiwp2o3l+370aa56%n(*!jk3)=c-u)3&*bc'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.3.19', '192.168.3.21']
 
 
 # Application definition
@@ -245,6 +245,14 @@ LOGGING = {
         #     'level': 'WARNING',
         #     'propagate': True,
         # },
+# https://community.plot.ly/t/prevent-post-dash-update-component-http-1-1-messages/11132
+# https://github.com/plotly/dash/issues/270
+        'werkzeug': {
+            # 'handlers': ['console', 'file'],
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         '': {
             # 'handlers': ['console', 'file'],
             'handlers': ['console'],
@@ -264,6 +272,7 @@ BME280CH2_ADDR = 0x77
 # for Development on your macOS, Ubuntu or MS-Windows
 
 ON_RASPBERRY_PI = False
+USE_SMBUS2 = True
 
 
 # miscs
